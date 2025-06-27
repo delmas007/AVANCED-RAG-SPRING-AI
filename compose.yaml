@@ -1,0 +1,19 @@
+services:
+  pgvector:
+    container_name: rag-avanced
+    image: 'pgvector/pgvector:pg16'
+    environment:
+      - 'POSTGRES_DB=ragbd'
+      - 'POSTGRES_PASSWORD=ragbd'
+      - 'POSTGRES_USER=ragbd'
+    volumes:
+      - agentic_rag_data:/var/lib/postgresql/data
+    ports:
+      - '2345:5432'
+    networks:
+      - agentic-net
+volumes:
+  agentic_rag_data:
+networks:
+  agentic-net:
+    driver: bridge
