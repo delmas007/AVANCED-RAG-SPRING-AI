@@ -1,7 +1,7 @@
-package angaman.cedrick.rag_openai.Repository;
+package com.example.avancedrag.Repository;
 
-import angaman.cedrick.rag_openai.Model.Utilisateur;
-import angaman.cedrick.rag_openai.Model.Validation;
+import com.example.avancedrag.Model.Utilisateur;
+import com.example.avancedrag.Model.Validation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

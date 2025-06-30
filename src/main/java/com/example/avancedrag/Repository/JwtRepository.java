@@ -1,6 +1,6 @@
-package angaman.cedrick.rag_openai.Repository;
+package com.example.avancedrag.Repository;
 
-import angaman.cedrick.rag_openai.Model.Jwt;
+import com.example.avancedrag.Model.Jwt;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

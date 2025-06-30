@@ -1,8 +1,7 @@
-package angaman.cedrick.rag_openai.Dto;
+package com.example.avancedrag.Service.Dto;
 
-import angaman.cedrick.rag_openai.Model.Role;
-import angaman.cedrick.rag_openai.Model.Utilisateur;
-import jakarta.persistence.Column;
+import com.example.avancedrag.Model.Role;
+import com.example.avancedrag.Model.Utilisateur;
 import lombok.Builder;
 import lombok.Data;
 

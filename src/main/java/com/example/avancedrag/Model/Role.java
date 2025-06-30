@@ -1,4 +1,4 @@
-package angaman.cedrick.rag_openai.Model;
+package com.example.avancedrag.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

@@ -1,4 +1,4 @@
-package angaman.cedrick.rag_openai.Model;
+package com.example.avancedrag.Model;
 
 public enum Roles {
     USER,

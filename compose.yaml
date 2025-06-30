@@ -8,12 +8,8 @@ services:
       - 'POSTGRES_USER=ragbd'
     volumes:
       - agentic_rag_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - '2345:5432'
     networks:
       - agentic-net
-volumes:
-  agentic_rag_data:
-networks:
-  agentic-net:
-    driver: bridge

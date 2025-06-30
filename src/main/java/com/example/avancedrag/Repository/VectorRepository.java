@@ -1,6 +1,6 @@
-package angaman.cedrick.rag_openai.Repository;
+package com.example.avancedrag.Repository;
 
-import angaman.cedrick.rag_openai.Model.VectorStore;
+import com.example.avancedrag.Model.VectorStore;
 import org.springframework.ai.document.Document;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -25,11 +25,6 @@ public interface VectorRepository extends JpaRepository<VectorStore, String> {
     @Query("SELECT v.id FROM VectorStore v")
     List<String> findAllVectorIds();
 
-
-//    @Transactional
-//    @Query("SELECT v FROM VectorStore v WHERE v.id = :id")
-//    Optional<VectorStore> findByIdd(@Param("id") String id);
-
     @Transactional
     @Query("SELECT u.id FROM VectorStore v JOIN v.utilisateur u WHERE v.id = :id")
     Optional<String> findUserIdByVectorStoreId(@Param("id") String id);
@@ -37,12 +32,6 @@ public interface VectorRepository extends JpaRepository<VectorStore, String> {
     @Transactional
     @Query("SELECT v.id, v.embedding FROM VectorStore v ")
     Optional<Document> findVectorStoreById();
-
-
-//    @Transactional
-//    @Query("SELECT v.id FROM VectorStore v WHERE v.id = :id")
-//    Optional<String> findByIdd(@Param("id") String id);
-
 
     @Modifying
     @Transactional

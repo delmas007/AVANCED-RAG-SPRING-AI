@@ -1,11 +1,10 @@
-package angaman.cedrick.rag_openai.Model;
+package com.example.avancedrag.Model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.stringtemplate.v4.ST;
 
 import java.time.Instant;
 

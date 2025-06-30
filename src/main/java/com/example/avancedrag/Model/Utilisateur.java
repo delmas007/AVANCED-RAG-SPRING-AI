@@ -1,4 +1,4 @@
-package angaman.cedrick.rag_openai.Model;
+package com.example.avancedrag.Model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -42,20 +42,4 @@ public class Utilisateur {
     @JsonIgnore
     @JoinColumn(name = "roleId")
     private Role role;
-
-//    @OneToMany(mappedBy = "utilisateur")
-//    @JsonIgnore
-    @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<VectorStore> vectorStores;
-
-    @OneToMany(mappedBy = "utilisateur")
-    private List<Jwt> jwts;
-
-    @OneToMany(mappedBy = "utilisateur")
-    private List<Validation> validations;
-
-
-
-
-
 }

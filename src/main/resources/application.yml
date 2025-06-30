@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: AVANCED-RAG
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://localhost:2345/ragbd
+    username: ragbd
+    password: ragbd
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  ai:
+    openai:
+      api-key: ${OPEN_AI_KEY}
+      chat:
+        options:
+          model: ${SPRING_AI_MODEL}
+cloudinary:
+  url: ${CLOUDINARY_URL}

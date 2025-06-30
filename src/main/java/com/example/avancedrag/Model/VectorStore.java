@@ -1,7 +1,6 @@
-package angaman.cedrick.rag_openai.Model;
+package com.example.avancedrag.Model;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,16 +24,10 @@ public class VectorStore {
   @Column(name = "metadata", columnDefinition = "jsonb")
   private String metadata;
 
-//  @Column(name = "embedding", columnDefinition = "vector(3)")  // 3 est la dimension du vecteur
-  @Column(name = "embedding", columnDefinition = "vector(1536)")  // 1536 est la dimension du vecteur
-  private float[] embedding;  // Utiliser float[] pour représenter le vecteur en Java
+  @Column(name = "embedding", columnDefinition = "vector(1536)")
+  private float[] embedding;
 
-//  @ManyToOne
-//  @JsonIgnore
-//  @JoinColumn(name = "utilisateur_id")
-//  private Utilisateur utilisateur;
-
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "utilisateur_id")
   private Utilisateur utilisateur;
 

@@ -1,4 +1,4 @@
-package angaman.cedrick.rag_openai.Model;
+package com.example.avancedrag.Model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
