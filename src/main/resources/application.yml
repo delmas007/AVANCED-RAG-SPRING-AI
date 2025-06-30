@@ -8,7 +8,7 @@ spring:
     password: ragbd
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
   ai:
     openai:
       api-key: ${OPEN_AI_KEY}

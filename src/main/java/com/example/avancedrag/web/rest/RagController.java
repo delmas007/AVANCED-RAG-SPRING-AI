@@ -1,5 +1,6 @@
 package com.example.avancedrag.web.rest;
 
+import com.example.avancedrag.Service.Dto.QueryDTO;
 import com.example.avancedrag.Service.RagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +17,15 @@ public class RagController {
     private final RagService ragService;
 
     @PostMapping("/file")
-    public ResponseEntity<Void> rag(@RequestParam("files") MultipartFile[] files) throws IOException {
+    public ResponseEntity<Void> rag(@RequestParam("files") MultipartFile[] files) throws Exception {
         ragService.rag(files);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/ask")
+    public ResponseEntity<String> askLlm(@RequestBody QueryDTO queryDTO) {
+        String response = ragService.askLlm(queryDTO.getQuery(), queryDTO.getUserId());
+        return ResponseEntity.ok(response);
     }
 
 }

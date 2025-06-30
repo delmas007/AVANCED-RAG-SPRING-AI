@@ -14,7 +14,7 @@ public class ImageConverter {
         BufferedImage bufferedImage = image.getImage();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(bufferedImage, "png", baos); // ou "jpg"
+        ImageIO.write(bufferedImage, "png", baos);
         byte[] bytes = baos.toByteArray();
 
         return new InMemoryMultipartFile(
@@ -24,5 +24,22 @@ public class ImageConverter {
                 bytes
         );
     }
+
+    public static MultipartFile convertToMultipart(byte[] bytes, String extension, int index) {
+        String contentType = switch (extension.toLowerCase()) {
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png" -> "image/png";
+            case "gif" -> "image/gif";
+            default -> "application/octet-stream"; // fallback
+        };
+
+        return new InMemoryMultipartFile(
+                "image" + index,
+                "image" + index + "." + extension,
+                contentType,
+                bytes
+        );
+    }
+
 }
 

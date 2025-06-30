@@ -9,8 +9,8 @@ import java.io.IOException;
 
 public interface RagService {
 
-    String askLlm(String query);
+    String askLlm(String query, String userId);
 
-    void rag(MultipartFile[] files) throws IOException;
+    void rag(MultipartFile[] files) throws Exception;
 
 }
