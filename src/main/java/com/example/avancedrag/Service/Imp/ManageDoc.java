@@ -32,9 +32,9 @@ import java.io.*;
 import java.util.*;
 
 @Service
-public class StaticMethode {
+public class ManageDoc {
 
-    public StaticMethode(VectorStore vectorStore, FileStorageService fileStorageService) {
+    public ManageDoc(VectorStore vectorStore, FileStorageService fileStorageService) {
         this.vectorStore = vectorStore;
         this.fileStorageService = fileStorageService;
     }
@@ -45,6 +45,12 @@ public class StaticMethode {
     private  String openAiApiKey;
 
 
+    OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
+            .openAiApi(OpenAiApi.builder()
+                    .apiKey(openAiApiKey)
+                    .build())
+            .build();
+    ChatClient chatClient = ChatClient.builder(openAiChatModel).build();
 
     public  String getFileExtension(MultipartFile file) {
         String filename = file.getOriginalFilename();
@@ -156,13 +162,9 @@ public class StaticMethode {
     }
 
 
+
     public  void processPdf(Resource resource) throws IOException {
-        OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
-                .openAiApi(OpenAiApi.builder()
-                        .apiKey(openAiApiKey)
-                        .build())
-                .build();
-            var chatClient = ChatClient.builder(openAiChatModel).build();
+
 //        for (Resource resource : Resources) {
             PDDocument document = PDDocument.load(resource.getInputStream());
             PDPageTree pdPages = document.getPages();
@@ -213,12 +215,6 @@ public class StaticMethode {
     }
 
     public  void processDocx(Resource resource) throws Exception {
-        OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
-                .openAiApi(OpenAiApi.builder()
-                        .apiKey(openAiApiKey)
-                        .build())
-                .build();
-        var chatClient = ChatClient.builder(openAiChatModel).build();
         List<Document> documents = new ArrayList<>();
 
         try (XWPFDocument doc = new XWPFDocument(resource.getInputStream())) {
@@ -320,12 +316,6 @@ public class StaticMethode {
 
 
     public  void processExcel(Resource resource) throws Exception {
-        OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
-                .openAiApi(OpenAiApi.builder()
-                        .apiKey(openAiApiKey)
-                        .build())
-                .build();
-        var chatClient = ChatClient.builder(openAiChatModel).build();
         List<Document> documents = new ArrayList<>();
 
         try (XSSFWorkbook workbook = new XSSFWorkbook(resource.getInputStream())) {

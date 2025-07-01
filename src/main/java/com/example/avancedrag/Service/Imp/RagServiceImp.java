@@ -9,7 +9,6 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
-import org.springframework.ai.document.Document;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.rag.Query;
@@ -32,32 +31,14 @@ public class RagServiceImp implements RagService {
 
     @Value("${spring.ai.openai.api-key}")
     private String openAiApiKey;
-    private final  StaticMethode StaticMethode;
+    private final ManageDoc manageDoc;
     private final VectorStore vectorStore;
 
-
-
+    @Value("classpath:prompts/systemMessageChat.st")
+    private String systemMessage;
 
     @Override
     public String askLlm(String query) {
-        String systemMessage =
-                """
-                    Vous êtes un expert chargé de répondre à des questions en vous appuyant uniquement sur le CONTEXTE fourni.
-                   \s
-                    Consignes :
-                    - Basez votre réponse uniquement sur les informations présentes dans le CONTEXTE.
-                    - N’inventez aucune information. Si la réponse n’est pas dans le CONTEXTE, indiquez-le clairement.
-                    - Structurez votre réponse de manière claire, précise et concise.
-                    - Lorsque des images sont mentionnées avec des URLs, présentez-les sous forme de liste comme suit :
-                       - URL_IMAGE(URL 1)=>
-                       - URL_IMAGE(URL 2)=>
-                   \s
-                    Style attendu :
-                    - Le ton doit être fluide, naturel, professionnel, sans formules comme “dans le contexte fourni”.
-                    - La réponse doit être directement axée sur la question posée, sans ajout inutile.
-                    - Respectez les sauts de ligne pour une bonne lisibilité.
-                    - La réponse doit toujours être rédigée en français.
-               \s""";
 
 
         OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
@@ -89,21 +70,6 @@ public class RagServiceImp implements RagService {
         Query transformedQuery = queryTransformer.transform(requete);
 
 
-//        FilterExpressionBuilder b = new FilterExpressionBuilder();
-//        Filter.Expression expr = b.eq("id", SecurityUtils.getCurrentUsername()).build();
-//
-//
-//        return chatClient.build().prompt()
-//                .system(systemMessage)
-//                .user(transformedQuery.text())
-//                .advisors(a -> a
-//                        .param(ChatMemory.CONVERSATION_ID, SecurityUtils.getCurrentUsername())
-//                        .param(QuestionAnswerAdvisor.FILTER_EXPRESSION, expr)
-//                )
-//                .call()
-//                .content();
-
-
         String filter = String.format("id == '%s'", SecurityUtils.getCurrentUsername());
 
         return chatClient.build().prompt()
@@ -122,7 +88,7 @@ public class RagServiceImp implements RagService {
         Resource[] pdfResources = Arrays.stream(files)
                 .map(MultipartFile::getResource)
                 .toArray(Resource[]::new);
-        StaticMethode.loadDataIntoVectorStore(pdfResources);
+        manageDoc.loadDataIntoVectorStore(pdfResources);
 
     }
 
