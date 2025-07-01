@@ -10,6 +10,9 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.ai.rag.Query;
+import org.springframework.ai.rag.preretrieval.query.transformation.QueryTransformer;
+import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQueryTransformer;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,19 +37,25 @@ public class RagServiceImp implements RagService {
     @Override
     public String askLlm(String query,String userId) {
 
-        String systemMessage = """
-                Vous devez répondre à la question suivante en vous basant uniquement sur le CONTEXTE. Ne fournissez aucune information qui n'est pas contenue dans ce contexte.
-
-                Votre tâche est de :
-                - Utiliser uniquement le CONTEXTE pour élaborer votre réponse.
-                - Ne pas faire de suppositions ou ajouter des informations qui ne sont pas dans le CONTEXTE.
-                - Si vous ne trouvez pas la réponse dans le CONTEXTE, indiquez que vous ne disposez pas des informations nécessaires.
-                - Si votre réponse contient l' url d'accès à la source des images dans le contexte, utilisez ce format pour présenter les images dans une liste d'éléments, comme:
-                   - URL_IMAGE(URL 1)=>
-                   - URL_IMAGE(URL 2)=>
-               \s
-                Notez que votre réponse doit être bien organiser respecte les retour a la ligne, précise, concise, et axée sur la question.\s
+        String systemMessage =
+                """
+                    Vous êtes un expert chargé de répondre à des questions en vous appuyant uniquement sur le CONTEXTE fourni.
+                   \s
+                    Consignes :
+                    - Basez votre réponse uniquement sur les informations présentes dans le CONTEXTE.
+                    - N’inventez aucune information. Si la réponse n’est pas dans le CONTEXTE, indiquez-le clairement.
+                    - Structurez votre réponse de manière claire, précise et concise.
+                    - Lorsque des images sont mentionnées avec des URLs, présentez-les sous forme de liste comme suit :
+                       - URL_IMAGE(URL 1)=>
+                       - URL_IMAGE(URL 2)=>
+                   \s
+                    Style attendu :
+                    - Le ton doit être fluide, naturel, professionnel, sans formules comme “dans le contexte fourni”.
+                    - La réponse doit être directement axée sur la question posée, sans ajout inutile.
+                    - Respectez les sauts de ligne pour une bonne lisibilité.
+                    - La réponse doit toujours être rédigée en français.
                \s""";
+
 
         OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
                 .openAiApi(OpenAiApi.builder()
@@ -54,22 +63,34 @@ public class RagServiceImp implements RagService {
                         .build())
                 .build();
 
+
         ChatMemory memory = MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
                 .maxMessages(10)
                 .build();
-        var chatClient = ChatClient.builder(openAiChatModel)
-                .defaultAdvisors(
+        var chatClient = ChatClient.builder(openAiChatModel);
+
+        chatClient.defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(memory).build(),
                         QuestionAnswerAdvisor.builder(vectorStore)
                                 .searchRequest(SearchRequest.builder().build())
                                 .build()
                 ).build();
 
-        return chatClient.prompt()
+        Query requete = new Query(query);
+
+        QueryTransformer queryTransformer = RewriteQueryTransformer.builder()
+                .chatClientBuilder(chatClient)
+                .build();
+
+        Query transformedQuery = queryTransformer.transform(requete);
+
+
+
+        return chatClient.build().prompt()
                 .system(systemMessage)
                 .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, userId))
-                .user(query)
+                .user(transformedQuery.text())
                 .call()
                 .content();
     }

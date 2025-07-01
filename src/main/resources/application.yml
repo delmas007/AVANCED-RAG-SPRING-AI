@@ -15,5 +15,6 @@ spring:
       chat:
         options:
           model: ${SPRING_AI_MODEL}
+          temperature: 0
 cloudinary:
   url: ${CLOUDINARY_URL}
