@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public interface RagService {
 
-    String askLlm(String query, String userId);
+    String askLlm(String query);
 
     void rag(MultipartFile[] files) throws Exception;
 

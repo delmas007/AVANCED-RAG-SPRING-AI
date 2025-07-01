@@ -15,27 +15,12 @@ import java.util.Optional;
 @Repository
 public interface VectorRepository extends JpaRepository<VectorStore, String> {
 
-    @Modifying  // Indique que la requête modifie des données
-    @Transactional
-    @Query("delete from VectorStore v where v.utilisateur.id = :utilisateurId")
-    void supprimerParUtilisateurId(@Param("utilisateurId") String utilisateurId);
-
-
     @Transactional(readOnly = true)
     @Query("SELECT v.id FROM VectorStore v")
     List<String> findAllVectorIds();
 
     @Transactional
-    @Query("SELECT u.id FROM VectorStore v JOIN v.utilisateur u WHERE v.id = :id")
-    Optional<String> findUserIdByVectorStoreId(@Param("id") String id);
-
-    @Transactional
     @Query("SELECT v.id, v.embedding FROM VectorStore v ")
     Optional<Document> findVectorStoreById();
-
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE VectorStore v SET v.utilisateur.id = :userId WHERE v.id = :vectorId")
-    void updateUserForVector(@Param("userId") String userId, @Param("vectorId") String vectorId);
 
 }

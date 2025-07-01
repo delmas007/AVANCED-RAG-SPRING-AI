@@ -9,6 +9,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
   ai:
     openai:
       api-key: ${OPEN_AI_KEY}
@@ -18,3 +23,14 @@ spring:
           temperature: 0
 cloudinary:
   url: ${CLOUDINARY_URL}
+rsa:
+  privateKey: classpath:Key/pri.pem
+  publicKey: classpath:Key/pub.pem
+logging:
+  level:
+    org:
+      springframework:
+        security:
+          web:
+            util:
+              matcher: TRACE

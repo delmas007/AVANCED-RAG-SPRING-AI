@@ -2,24 +2,31 @@ package com.example.avancedrag.Service.Imp;
 
 import com.example.avancedrag.Service.RagService;
 import com.example.avancedrag.Service.memory.PostgresChatMemoryStore;
+import com.example.avancedrag.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.document.Document;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.rag.Query;
 import org.springframework.ai.rag.preretrieval.query.transformation.QueryTransformer;
 import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQueryTransformer;
+import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
+import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 
 @Service
@@ -35,7 +42,7 @@ public class RagServiceImp implements RagService {
 
 
     @Override
-    public String askLlm(String query,String userId) {
+    public String askLlm(String query) {
 
         String systemMessage =
                 """
@@ -64,6 +71,16 @@ public class RagServiceImp implements RagService {
                 .build();
 
 
+        DocumentRetriever retriever = VectorStoreDocumentRetriever.builder()
+                .vectorStore(vectorStore)
+                .similarityThreshold(0.73)
+                .topK(5)
+                .filterExpression(new FilterExpressionBuilder()
+                        .eq("genre", "fairytale")
+                        .build())
+                .build();
+        List<Document> documents = retriever.retrieve(new Query("What is the main character of the story?"));
+
         ChatMemory memory = MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
                 .maxMessages(10)
@@ -86,11 +103,15 @@ public class RagServiceImp implements RagService {
         Query transformedQuery = queryTransformer.transform(requete);
 
 
+        String filter = String.format("id == '%s'", SecurityUtils.getCurrentUsername());
 
         return chatClient.build().prompt()
                 .system(systemMessage)
-                .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, userId))
                 .user(transformedQuery.text())
+                .advisors(advisor -> advisor
+                        .param(ChatMemory.CONVERSATION_ID, Objects.requireNonNull(SecurityUtils.getCurrentUsername()))
+                        .param(VectorStoreDocumentRetriever.FILTER_EXPRESSION, filter)
+                )
                 .call()
                 .content();
     }

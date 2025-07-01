@@ -7,12 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/rag")
-public class RagController {
+public class RagResource {
 
     private final RagService ragService;
 
@@ -24,8 +22,9 @@ public class RagController {
 
     @PostMapping("/ask")
     public ResponseEntity<String> askLlm(@RequestBody QueryDTO queryDTO) {
-        String response = ragService.askLlm(queryDTO.getQuery(), queryDTO.getUserId());
+        String response = ragService.askLlm(queryDTO.getQuery());
         return ResponseEntity.ok(response);
+
     }
 
 }

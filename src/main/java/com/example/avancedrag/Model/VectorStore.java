@@ -27,10 +27,6 @@ public class VectorStore {
   @Column(name = "embedding", columnDefinition = "vector(1536)")
   private float[] embedding;
 
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "utilisateur_id")
-  private Utilisateur utilisateur;
-
 }
 
 

@@ -1,6 +1,7 @@
 package com.example.avancedrag.Service.Imp;
 
 import com.example.avancedrag.Service.FileStorageService;
+import com.example.avancedrag.util.SecurityUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageTree;
@@ -169,6 +170,7 @@ public class StaticMethode {
                 String textContent = pdfTextStripper.getText(document);
                 Map<String, Object> metadataText = new HashMap<>();
                 metadataText.put("Page", page);
+                metadataText.put("id", SecurityUtils.getCurrentUsername());
                 Document textDoc = new Document(textContent, metadataText);
                 pageDocuments.add(textDoc);
 
@@ -189,7 +191,7 @@ public class StaticMethode {
                         Map<String, Object> metadataImage = new HashMap<>();
                         metadataImage.put("Page", page);
                         metadataImage.put("media", urlImage);
-
+                        metadataImage.put("id", SecurityUtils.getCurrentUsername());
                         Document imageDoc = new Document(imageContent, metadataImage);
                         pageDocuments.add(imageDoc);
                     }
@@ -210,7 +212,9 @@ public class StaticMethode {
                 textContent.append(paragraph.getText()).append("\n");
             }
 
-            Map<String, Object> metadata = Map.of("fileName", resource.getFilename());
+            Map<String, Object> metadata = Map.of(
+                    "fileName", resource.getFilename()
+                    ,"id", SecurityUtils.getCurrentUsername());
             documents.add(new Document(textContent.toString(), metadata));
 
             int index = 0;
@@ -231,6 +235,7 @@ public class StaticMethode {
                 Map<String, Object> meta = new HashMap<>();
                 meta.put("fileName", resource.getFilename());
                 meta.put("media", urlImage);
+                meta.put("id", SecurityUtils.getCurrentUsername());
                 documents.add(new Document(imageContent, meta));
             }
         }
@@ -257,7 +262,8 @@ public class StaticMethode {
 
                 Map<String, Object> metaText = Map.of(
                         "slide", slideNumber,
-                        "fileName", resource.getFilename()
+                        "fileName", resource.getFilename(),
+                        "id", SecurityUtils.getCurrentUsername()
                 );
                 documents.add(new Document(slideText.toString(), metaText));
 
@@ -280,6 +286,7 @@ public class StaticMethode {
                         meta.put("slide", slideNumber);
                         meta.put("media", urlImage);
                         meta.put("fileName", resource.getFilename());
+                        meta.put("id", SecurityUtils.getCurrentUsername());
                         documents.add(new Document(imageContent, meta));
                     }
                 }
@@ -316,6 +323,7 @@ public class StaticMethode {
                 Map<String, Object> metadataText = Map.of(
                         "sheetName", sheet.getSheetName(),
                         "fileName", resource.getFilename(),
+                        "id", SecurityUtils.getCurrentUsername(),
                         "sheetIndex", sheetIndex
                 );
                 documents.add(new Document(sheetText.toString(), metadataText));
@@ -344,7 +352,7 @@ public class StaticMethode {
                             imageMeta.put("fileName", resource.getFilename());
                             imageMeta.put("media", urlImage);
                             imageMeta.put("sheetIndex", sheetIndex);
-
+                            imageMeta.put("id", SecurityUtils.getCurrentUsername());
                             assert content != null;
                             documents.add(new Document(imageContent, imageMeta));
                         }

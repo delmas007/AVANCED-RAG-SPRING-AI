@@ -8,5 +8,4 @@ import lombok.Setter;
 public class QueryDTO {
 
     private String query;
-    private String userId;
 }
