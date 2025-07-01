@@ -15,6 +15,12 @@ spring:
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
   ai:
+    ollama:
+      base-url: ${SPRING_AI_OLLAMA_URL}
+      embedding:
+        model: ${SPRING_AI_OLLAMA_MODEL}
+        options:
+          temperature: 0.5
     openai:
       api-key: ${OPEN_AI_KEY}
       chat:

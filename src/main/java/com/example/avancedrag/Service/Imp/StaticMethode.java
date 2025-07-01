@@ -17,10 +17,13 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFPictureData;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
 import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
@@ -31,18 +34,19 @@ import java.util.*;
 @Service
 public class StaticMethode {
 
-    public StaticMethode(VectorStore vectorStore, FileStorageService fileStorageService,
-                         ChatClient.Builder chatClient) {
-        StaticMethode.vectorStore = vectorStore;
-        StaticMethode.fileStorageService = fileStorageService;
-        StaticMethode.chatClient = chatClient.build();
+    public StaticMethode(VectorStore vectorStore, FileStorageService fileStorageService) {
+        this.vectorStore = vectorStore;
+        this.fileStorageService = fileStorageService;
     }
 
-    private static VectorStore vectorStore;
-    private static  FileStorageService fileStorageService;
-    private static ChatClient chatClient;
+    private final VectorStore vectorStore;
+    private final FileStorageService fileStorageService;
+    @Value("${spring.ai.openai.api-key}")
+    private  String openAiApiKey;
 
-    public static String getFileExtension(MultipartFile file) {
+
+
+    public  String getFileExtension(MultipartFile file) {
         String filename = file.getOriginalFilename();
         if (filename != null && filename.contains(".")) {
             return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
@@ -50,7 +54,7 @@ public class StaticMethode {
         return "";
     }
 
-    public static String getFileExtension(Resource resource) {
+    public  String getFileExtension(Resource resource) {
         String filename = resource.getFilename();
         if (filename != null && filename.contains(".")) {
             return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
@@ -58,7 +62,7 @@ public class StaticMethode {
         return "";
     }
 
-    public static List<Document> powerPointExtract(Resource[] PowerpointResources) {
+    public  List<Document> powerPointExtract(Resource[] PowerpointResources) {
         List<Document> documentList = List.of();
         for (Resource resource : PowerpointResources) {
             try (InputStream inputStream = resource.getInputStream()) {
@@ -87,7 +91,7 @@ public class StaticMethode {
 
     }
 
-    public static List<Document> pdfExtract(Resource[] pdfResources) {
+    public  List<Document> pdfExtract(Resource[] pdfResources) {
         PdfDocumentReaderConfig config = PdfDocumentReaderConfig.defaultConfig();
         List<Document> documentList = List.of();
         for(Resource resource : pdfResources){
@@ -97,7 +101,7 @@ public class StaticMethode {
         return documentList;
     }
 
-    public static List<Document> excelExtract(Resource[] excelResources) {
+    public  List<Document> excelExtract(Resource[] excelResources) {
         List<Document> documentList = List.of();
         for (Resource resource : excelResources) {
             try (InputStream inputStream = resource.getInputStream()) {
@@ -127,13 +131,13 @@ public class StaticMethode {
         return documentList;
     }
 
-    public static void vectorizeDocuments(List<Document> documentList) {
+    public  void vectorizeDocuments(List<Document> documentList) {
         TokenTextSplitter tokenTextSplitter = new TokenTextSplitter();
         List<Document> chunks = tokenTextSplitter.split(documentList);
         vectorStore.accept(chunks);
     }
 
-    public static void loadDataIntoVectorStore(Resource[] resources) throws Exception {
+    public  void loadDataIntoVectorStore(Resource[] resources) throws Exception {
         for (Resource resource : resources) {
             String filename = Objects.requireNonNull(resource.getFilename()).toLowerCase();
 
@@ -152,7 +156,13 @@ public class StaticMethode {
     }
 
 
-    public static void processPdf(Resource resource) throws IOException {
+    public  void processPdf(Resource resource) throws IOException {
+        OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
+                .openAiApi(OpenAiApi.builder()
+                        .apiKey(openAiApiKey)
+                        .build())
+                .build();
+            var chatClient = ChatClient.builder(openAiChatModel).build();
 //        for (Resource resource : Resources) {
             PDDocument document = PDDocument.load(resource.getInputStream());
             PDPageTree pdPages = document.getPages();
@@ -202,7 +212,13 @@ public class StaticMethode {
 //        }
     }
 
-    public static void processDocx(Resource resource) throws Exception {
+    public  void processDocx(Resource resource) throws Exception {
+        OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
+                .openAiApi(OpenAiApi.builder()
+                        .apiKey(openAiApiKey)
+                        .build())
+                .build();
+        var chatClient = ChatClient.builder(openAiChatModel).build();
         List<Document> documents = new ArrayList<>();
 
         try (XWPFDocument doc = new XWPFDocument(resource.getInputStream())) {
@@ -244,7 +260,7 @@ public class StaticMethode {
     }
 
 
-    public static void processPptx(Resource resource) throws Exception {
+    public  void processPptx(Resource resource) throws Exception {
         List<Document> documents = new ArrayList<>();
         try (XMLSlideShow ppt = new XMLSlideShow(resource.getInputStream())) {
             int index = 0;
@@ -268,6 +284,12 @@ public class StaticMethode {
                 documents.add(new Document(slideText.toString(), metaText));
 
                 for (XSLFShape shape : slide.getShapes()) {
+                    OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
+                            .openAiApi(OpenAiApi.builder()
+                                    .apiKey(openAiApiKey)
+                                    .build())
+                            .build();
+                    var chatClient = ChatClient.builder(openAiChatModel).build();
                     if (shape instanceof XSLFPictureShape picture) {
                         ++index;
                         byte[] imageBytes = picture.getPictureData().getData();
@@ -297,7 +319,13 @@ public class StaticMethode {
     }
 
 
-    public static void processExcel(Resource resource) throws Exception {
+    public  void processExcel(Resource resource) throws Exception {
+        OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
+                .openAiApi(OpenAiApi.builder()
+                        .apiKey(openAiApiKey)
+                        .build())
+                .build();
+        var chatClient = ChatClient.builder(openAiChatModel).build();
         List<Document> documents = new ArrayList<>();
 
         try (XSSFWorkbook workbook = new XSSFWorkbook(resource.getInputStream())) {

@@ -15,17 +15,13 @@ import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.rag.Query;
 import org.springframework.ai.rag.preretrieval.query.transformation.QueryTransformer;
 import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQueryTransformer;
-import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
-import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 
@@ -36,14 +32,14 @@ public class RagServiceImp implements RagService {
 
     @Value("${spring.ai.openai.api-key}")
     private String openAiApiKey;
-
+    private final  StaticMethode StaticMethode;
     private final VectorStore vectorStore;
+
 
 
 
     @Override
     public String askLlm(String query) {
-
         String systemMessage =
                 """
                     Vous êtes un expert chargé de répondre à des questions en vous appuyant uniquement sur le CONTEXTE fourni.
@@ -70,17 +66,6 @@ public class RagServiceImp implements RagService {
                         .build())
                 .build();
 
-
-        DocumentRetriever retriever = VectorStoreDocumentRetriever.builder()
-                .vectorStore(vectorStore)
-                .similarityThreshold(0.73)
-                .topK(5)
-                .filterExpression(new FilterExpressionBuilder()
-                        .eq("genre", "fairytale")
-                        .build())
-                .build();
-        List<Document> documents = retriever.retrieve(new Query("What is the main character of the story?"));
-
         ChatMemory memory = MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
                 .maxMessages(10)
@@ -94,6 +79,7 @@ public class RagServiceImp implements RagService {
                                 .build()
                 ).build();
 
+
         Query requete = new Query(query);
 
         QueryTransformer queryTransformer = RewriteQueryTransformer.builder()
@@ -103,6 +89,21 @@ public class RagServiceImp implements RagService {
         Query transformedQuery = queryTransformer.transform(requete);
 
 
+//        FilterExpressionBuilder b = new FilterExpressionBuilder();
+//        Filter.Expression expr = b.eq("id", SecurityUtils.getCurrentUsername()).build();
+//
+//
+//        return chatClient.build().prompt()
+//                .system(systemMessage)
+//                .user(transformedQuery.text())
+//                .advisors(a -> a
+//                        .param(ChatMemory.CONVERSATION_ID, SecurityUtils.getCurrentUsername())
+//                        .param(QuestionAnswerAdvisor.FILTER_EXPRESSION, expr)
+//                )
+//                .call()
+//                .content();
+
+
         String filter = String.format("id == '%s'", SecurityUtils.getCurrentUsername());
 
         return chatClient.build().prompt()
@@ -110,7 +111,7 @@ public class RagServiceImp implements RagService {
                 .user(transformedQuery.text())
                 .advisors(advisor -> advisor
                         .param(ChatMemory.CONVERSATION_ID, Objects.requireNonNull(SecurityUtils.getCurrentUsername()))
-                        .param(VectorStoreDocumentRetriever.FILTER_EXPRESSION, filter)
+                        .param(QuestionAnswerAdvisor.FILTER_EXPRESSION, filter)
                 )
                 .call()
                 .content();

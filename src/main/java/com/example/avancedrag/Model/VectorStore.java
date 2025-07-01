@@ -24,7 +24,8 @@ public class VectorStore {
   @Column(name = "metadata", columnDefinition = "jsonb")
   private String metadata;
 
-  @Column(name = "embedding", columnDefinition = "vector(1536)")
+//  @Column(name = "embedding", columnDefinition = "vector(1536)")
+  @Column(name = "embedding", columnDefinition = "vector(768)")
   private float[] embedding;
 
 }
