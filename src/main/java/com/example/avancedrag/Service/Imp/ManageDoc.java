@@ -2,6 +2,7 @@ package com.example.avancedrag.Service.Imp;
 
 import com.example.avancedrag.Service.FileStorageService;
 import com.example.avancedrag.util.SecurityUtils;
+import jakarta.annotation.PostConstruct;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageTree;
@@ -44,13 +45,18 @@ public class ManageDoc {
     @Value("${spring.ai.openai.api-key}")
     private  String openAiApiKey;
 
+    private ChatClient chatClient;
 
-    OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
-            .openAiApi(OpenAiApi.builder()
-                    .apiKey(openAiApiKey)
-                    .build())
-            .build();
-    ChatClient chatClient = ChatClient.builder(openAiChatModel).build();
+    @PostConstruct
+    public void init() {
+        OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
+                .openAiApi(OpenAiApi.builder()
+                        .apiKey(openAiApiKey)
+                        .build())
+                .build();
+
+        this.chatClient = ChatClient.builder(openAiChatModel).build();
+    }
 
     public  String getFileExtension(MultipartFile file) {
         String filename = file.getOriginalFilename();
