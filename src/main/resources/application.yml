@@ -8,7 +8,7 @@ spring:
     password: ragbd
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT}
