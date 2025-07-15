@@ -8,7 +8,7 @@ spring:
     password: ragbd
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT}
@@ -27,6 +27,25 @@ spring:
         options:
           model: ${SPRING_AI_MODEL}
           temperature: 0
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY}
+      chat:
+        options:
+          model: ${DEEPSEEK_MODEL}
+    huggingface:
+      chat:
+        api-key: ${HUGGINGFACE_API_KEY}
+        url: ${HUGGINGFACE_URL}
+    model:
+      chat: ${SPRING_HUGGINGFACE_AI_MODEL}
+    openrouter:
+      api-key: ${OPENROUTER_API_KEY}
+      base-url: ${OPENROUTER_BASE_URL}
+      model-name: ${OPENROUTER_MODEL_NAME}
+    groq:
+      api-key: ${GROQ_API_KEY}
+      base-url: ${GROQ_BASE_URL}
+      model-name: ${GROQ_MODEL_NAME}
 cloudinary:
   url: ${CLOUDINARY_URL}
 rsa:
@@ -40,3 +59,5 @@ logging:
           web:
             util:
               matcher: TRACE
+server:
+  port: 8080

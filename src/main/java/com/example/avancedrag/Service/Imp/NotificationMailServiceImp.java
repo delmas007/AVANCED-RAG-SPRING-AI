@@ -21,11 +21,9 @@ public class NotificationMailServiceImp implements NotificationMailService {
         try {
             MimeMessage mail = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mail, true);
-
             helper.setFrom("noreply@delmas-gpt.tech");
             helper.setTo(validation.getUtilisateur().getEmail());
-            helper.setSubject("Votre code d'activation");
-
+            helper.setSubject("Votre code jj'activation");
             String content = "<html>" +
                     "<body>" +
                     "    <div style=\"font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #edf2f7; padding: 20px; text-align: center;\">" +
@@ -45,8 +43,6 @@ public class NotificationMailServiceImp implements NotificationMailService {
                     "    </div>" +
                     "</body>" +
                     "</html>";
-
-
             helper.setText(content, true);
             javaMailSender.send(mail);
         } catch (MessagingException e) {
