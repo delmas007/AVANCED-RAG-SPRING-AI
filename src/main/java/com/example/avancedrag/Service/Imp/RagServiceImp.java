@@ -13,6 +13,9 @@ import org.springframework.ai.deepseek.DeepSeekChatModel;
 import org.springframework.ai.deepseek.DeepSeekChatOptions;
 import org.springframework.ai.deepseek.api.DeepSeekApi;
 import org.springframework.ai.huggingface.HuggingfaceChatModel;
+import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.ai.ollama.api.OllamaApi;
+import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
@@ -58,6 +61,9 @@ public class RagServiceImp implements RagService {
     @Value("${spring.ai.groq.base-url}")
     private String groqApiUrl;
 
+    @Value("${spring.ai.ollama.chat.model}")
+    private String ollamaModel;
+
     private final ManageDoc manageDoc;
     private final VectorStore vectorStore;
 
@@ -72,6 +78,12 @@ public class RagServiceImp implements RagService {
                         .apiKey(openAiApiKey)
                         .build())
                 .build();
+
+        OllamaChatModel ollamaChatModel = OllamaChatModel.builder()
+                .ollamaApi(OllamaApi.builder()
+                        .build())
+                .defaultOptions(OllamaOptions.builder()
+                                .model(ollamaModel).build()).build();
 
         OpenAiChatModel grocChatModel = OpenAiChatModel.builder()
                 .openAiApi(OpenAiApi.builder()

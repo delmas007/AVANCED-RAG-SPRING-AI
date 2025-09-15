@@ -21,6 +21,8 @@ spring:
         model: ${SPRING_AI_OLLAMA_MODEL}
         options:
           temperature: 0.5
+      chat:
+        model: ${SPRING_AI_OLLAMA_CHAT_MODEL}
     openai:
       api-key: ${OPEN_AI_KEY}
       chat:
